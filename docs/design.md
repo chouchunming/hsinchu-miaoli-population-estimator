@@ -11,7 +11,13 @@ data/population/raw/<region>/<dataset>/<民國年月>/<sha256>.<ext>
 ```
 
 SQLite 保存 artifact metadata、取得事件、下載失敗、正規化單歲人口及
-戶籍動態。相同年月若官方重新上傳不同 bytes，保留不同 hash 版本。
+戶籍動態。相同年月若官方以新附件 URL 重新上傳不同 bytes，保留不同
+hash 版本。
+
+每月執行仍重新探索官方索引頁，但附件以完整 `download_url` 去重：
+repository 已有該 URL 時不再下載。成功與不支援格式直接沿用；解析失敗
+則由既有 raw bytes 重試。不同 URL 的同月份附件仍會下載，但同一 URL
+遭官方覆蓋時不會自動偵測新 bytes。
 
 ## 會考推估
 

@@ -468,6 +468,41 @@ class PopulationRepository:
             is not None
         )
 
+    def stored_artifact_for_download(
+        self,
+        download_url: str,
+    ) -> StoredArtifact | None:
+        row = self.connection.execute(
+            """
+            SELECT a.*
+            FROM artifacts a
+            WHERE a.download_url=?
+            ORDER BY (
+              SELECT MAX(f.fetched_at)
+              FROM artifact_fetches f WHERE f.artifact_id=a.id
+            ) DESC, a.id DESC
+            LIMIT 1
+            """,
+            (download_url,),
+        ).fetchone()
+        if row is None:
+            return None
+        path = Path(str(row["archive_path"]))
+        if not path.is_absolute():
+            path = self.database_path.parent / path
+        metadata = ArtifactMetadata(
+            dataset=str(row["dataset"]),
+            region=str(row["region"]),
+            roc_year=int(row["roc_year"]),
+            month=int(row["month"]),
+            source_page_url=str(row["source_page_url"]),
+            download_url=str(row["download_url"]),
+            fetched_at=str(row["first_fetched_at"]),
+            original_filename=str(row["original_filename"]),
+            media_type=str(row["media_type"]),
+        )
+        return StoredArtifact(metadata, path, str(row["sha256"]))
+
     def has_download_url(self, download_url: str) -> bool:
         return (
             self.connection.execute(

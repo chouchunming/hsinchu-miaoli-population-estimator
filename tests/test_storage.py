@@ -96,6 +96,17 @@ class RepositoryTests(StorageTestCase):
             good_id,
         )
 
+    def test_stored_artifact_for_download_reconstructs_local_archive(self):
+        stored = self.stored()
+        self.repo.record_failure(stored, "header missing")
+        recovered = self.repo.stored_artifact_for_download(
+            stored.metadata.download_url
+        )
+        self.assertIsNotNone(recovered)
+        self.assertEqual(recovered.path, stored.path)
+        self.assertEqual(recovered.sha256, stored.sha256)
+        self.assertEqual(recovered.metadata, stored.metadata)
+
     def test_transaction_rolls_back_artifact_and_rows(self):
         self.repo.connection.execute(
             """

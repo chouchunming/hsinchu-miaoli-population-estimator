@@ -42,6 +42,11 @@ python3 scripts/estimate_exam_population.py update \
   --end-year 130
 ```
 
+每次 `update` 仍會讀取三個官方索引頁以發現新月份，但只下載 SQLite
+尚未記錄的完整附件 URL。已成功解析或已標記為 PDF 的附件不重抓；
+曾解析失敗的附件直接從本機 raw 重新解析。此策略無法偵測官方用完全
+相同 URL 覆蓋檔案內容。
+
 若任一地區／資料集的最新可解析候選下載或解析失敗，`update` 會回傳
 exit code 1、保留已取得的原始檔與診斷，但不建立新的 exports 目錄。
 歷史 PDF 會保存為 `unsupported_media`，不使用 OCR，也不補零。

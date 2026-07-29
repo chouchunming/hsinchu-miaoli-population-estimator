@@ -172,27 +172,44 @@ def update(
             region = getattr(source, "REGION", getattr(source, "region", "unknown"))
             for candidate in inventories.get(region, ()):
                 is_current = candidate.download_url in current_urls
-                if (
-                    not is_current
-                    and repo.has_terminal_download(candidate.download_url)
-                ):
+                if repo.has_terminal_download(candidate.download_url):
                     continue
-                metadata = _metadata(candidate)
-                try:
-                    data = source.http.get(candidate.download_url)
-                except (HTTPError, URLError, TimeoutError, OSError) as exc:
-                    repo.record_fetch_failure(metadata, str(exc))
-                    message = (
-                        f"{candidate.region} {candidate.dataset} "
-                        f"{candidate.roc_year}-{candidate.month:02d} 下載失敗：{exc}"
-                    )
-                    if is_current:
-                        errors.append(message)
-                        failed_current_urls.add(candidate.download_url)
-                    else:
-                        discovery_warnings.append(message)
-                    continue
-                stored = archive.store(metadata, data)
+                stored = repo.stored_artifact_for_download(
+                    candidate.download_url
+                )
+                if stored is None:
+                    metadata = _metadata(candidate)
+                    try:
+                        data = source.http.get(candidate.download_url)
+                    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+                        repo.record_fetch_failure(metadata, str(exc))
+                        message = (
+                            f"{candidate.region} {candidate.dataset} "
+                            f"{candidate.roc_year}-{candidate.month:02d} "
+                            f"下載失敗：{exc}"
+                        )
+                        if is_current:
+                            errors.append(message)
+                            failed_current_urls.add(candidate.download_url)
+                        else:
+                            discovery_warnings.append(message)
+                        continue
+                    stored = archive.store(metadata, data)
+                else:
+                    try:
+                        data = stored.path.read_bytes()
+                    except OSError as exc:
+                        message = (
+                            f"{candidate.region} {candidate.dataset} "
+                            f"{candidate.roc_year}-{candidate.month:02d} "
+                            f"本機原始檔讀取失敗：{exc}"
+                        )
+                        if is_current:
+                            errors.append(message)
+                            failed_current_urls.add(candidate.download_url)
+                        else:
+                            discovery_warnings.append(message)
+                        continue
                 if not candidate.supported_for_parse:
                     repo.record_unsupported(stored)
                     continue

@@ -4,8 +4,10 @@ from io import StringIO
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from urllib.error import URLError
 
+from exam_population.models import SnapshotValidationError
 from exam_population.repository import PopulationRepository
 from exam_population.service import (
     analyze,
@@ -106,25 +108,6 @@ class BrokenSource:
         raise RuntimeError("programming defect")
 
 
-class HistoricalFakeSource(FakeSource):
-    def discover_available(self, start, end):
-        current = super().discover_available(start, end)
-        slug = REGION_SLUG[self.region]
-        historical = DatasetCandidate(
-            "age_population",
-            self.region,
-            115,
-            5,
-            f"https://example.test/{slug}/age-index",
-            f"https://example.test/{slug}/age-11505.csv",
-            "age-11505.csv",
-            ".csv",
-            "text/csv",
-            True,
-        )
-        return (historical, *current)
-
-
 def fake_sources(fail_url=None):
     data = {}
     for region, slug in REGION_SLUG.items():
@@ -157,8 +140,8 @@ class ServiceTests(unittest.TestCase):
             self.assertEqual(repo.count_artifacts(), 6)
             self.assertEqual(repo.count_migration_rows(), 3)
 
-    def test_second_update_reuses_artifacts_but_records_fetches(self):
-        sources, _http = fake_sources()
+    def test_second_update_skips_all_existing_download_urls(self):
+        sources, http = fake_sources()
         update(self.root, sources=sources, backfill_from=(115, 6), range_end=(115, 6))
         with PopulationRepository(self.root / "population.sqlite3") as repo:
             first = (
@@ -166,6 +149,7 @@ class ServiceTests(unittest.TestCase):
                 repo.count_age_rows(),
                 repo.count_migration_rows(),
                 repo.count_fetch_events(),
+                len(http.calls),
             )
         update(self.root, sources=sources, backfill_from=(115, 6), range_end=(115, 6))
         with PopulationRepository(self.root / "population.sqlite3") as repo:
@@ -174,43 +158,41 @@ class ServiceTests(unittest.TestCase):
                 repo.count_age_rows(),
                 repo.count_migration_rows(),
                 repo.count_fetch_events(),
+                len(http.calls),
             )
-        self.assertEqual(second[:3], first[:3])
-        self.assertGreater(second[3], first[3])
+        self.assertEqual(second, first)
 
-    def test_second_update_retries_failed_historical_artifact(self):
+    def test_second_update_reparses_failed_artifact_from_raw(self):
         sources, http = fake_sources()
-        sources[0] = HistoricalFakeSource("新竹縣", http)
-        historical_url = "https://example.test/county/age-11505.csv"
-        http.data[historical_url] = b"invalid csv"
-        update(
+        with patch(
+            "exam_population.service._parse",
+            side_effect=SnapshotValidationError("forced parser failure"),
+        ):
+            first = update(
+                self.root,
+                sources=sources,
+                backfill_from=(115, 6),
+                range_end=(115, 6),
+            )
+        self.assertEqual(first.status, "failed")
+        calls_after_failure = len(http.calls)
+        with PopulationRepository(self.root / "population.sqlite3") as repo:
+            self.assertEqual(repo.count_artifacts(), 6)
+            self.assertEqual(repo.count_age_rows(), 0)
+
+        second = update(
             self.root,
             sources=sources,
-            backfill_from=(115, 5),
-            range_end=(115, 6),
-        )
-        with PopulationRepository(self.root / "population.sqlite3") as repo:
-            self.assertIsNone(repo.latest_population("新竹縣", 115, 5))
-
-        http.data[historical_url] = age_data("新竹縣", 115, 5)
-        update(
-            self.root,
-            sources=sources,
-            backfill_from=(115, 5),
-            range_end=(115, 6),
-        )
-        with PopulationRepository(self.root / "population.sqlite3") as repo:
-            self.assertIsNotNone(repo.latest_population("新竹縣", 115, 5))
-
-    def test_failed_current_candidate_does_not_publish(self):
-        good_sources, _http = fake_sources()
-        update(
-            self.root,
-            sources=good_sources,
             backfill_from=(115, 6),
             range_end=(115, 6),
         )
-        before = set((self.root / "exports").iterdir())
+        self.assertEqual(second.status, "success")
+        self.assertEqual(len(http.calls), calls_after_failure)
+        with PopulationRepository(self.root / "population.sqlite3") as repo:
+            self.assertEqual(repo.count_age_rows(), 60)
+            self.assertEqual(repo.count_migration_rows(), 3)
+
+    def test_failed_current_candidate_does_not_publish(self):
         bad_url = "https://example.test/city/migration.csv"
         bad_sources, _http = fake_sources(fail_url=bad_url)
         result = update(
@@ -221,7 +203,7 @@ class ServiceTests(unittest.TestCase):
         )
         self.assertEqual(result.status, "failed")
         self.assertIsNone(result.export_dir)
-        self.assertEqual(set((self.root / "exports").iterdir()), before)
+        self.assertFalse((self.root / "exports").exists())
         with PopulationRepository(self.root / "population.sqlite3") as repo:
             self.assertEqual(repo.count_fetch_failures(), 1)
 
@@ -268,12 +250,13 @@ class ServiceTests(unittest.TestCase):
         bad_sources, _http = fake_sources(
             fail_url="https://example.test/city/migration.csv"
         )
+        failure_root = self.root / "failure"
         with redirect_stdout(stdout), redirect_stderr(stderr):
             code = main(
                 [
                     "update",
                     "--data-root",
-                    str(self.root),
+                    str(failure_root),
                     "--backfill-from",
                     "115-06",
                     "--range-end",
