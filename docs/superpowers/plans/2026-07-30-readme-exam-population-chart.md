@@ -225,7 +225,7 @@ Expected: a clean Task 1 commit is reachable from
 - Consumes: `tuple[ChartRow, ...]`
 - Produces: `render_svg(rows: tuple[ChartRow, ...]) -> str`, `write_chart(csv_path: Path, output_path: Path) -> Path`, `main(argv: list[str] | None = None) -> int`
 
-- [ ] **Step 1: Write failing SVG and atomic-failure tests**
+- [x] **Step 1: Write failing SVG and atomic-failure tests**
 
 Add tests equivalent to:
 
@@ -255,7 +255,7 @@ def test_write_chart_does_not_leave_output_after_invalid_csv(self):
 Also verify the SVG has a `viewBox`, year and population axis labels, the
 non-examinee disclaimer, and distinct line style metadata for all series.
 
-- [ ] **Step 2: Run renderer tests and verify RED**
+- [x] **Step 2: Run renderer tests and verify RED**
 
 Run:
 
@@ -268,7 +268,7 @@ caffeinate -i -m python3 -m unittest \
 
 Expected: import failure because `render_svg` and `write_chart` are undefined.
 
-- [ ] **Step 3: Implement deterministic SVG geometry and labels**
+- [x] **Step 3: Implement deterministic SVG geometry and labels**
 
 Add:
 
@@ -462,7 +462,7 @@ Add an `argparse` CLI with `--data-root`, optional `--input`, and `--output`.
 Resolve all default paths from `REPOSITORY_ROOT`, print the written path on
 success, and print `錯誤：...` to stderr with exit code 1 for `ChartDataError`.
 
-- [ ] **Step 4: Run focused and full tests**
+- [x] **Step 4: Run focused and full tests**
 
 Run:
 
@@ -475,7 +475,7 @@ caffeinate -i -m python3 -m compileall -q exam_population scripts tests
 
 Expected: all tests pass and compilation exits zero.
 
-- [ ] **Step 5: Review, commit, and push Task 2**
+- [x] **Step 5: Review, commit, and push Task 2**
 
 Run:
 

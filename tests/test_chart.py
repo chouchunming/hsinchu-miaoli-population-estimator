@@ -1,4 +1,6 @@
 import csv
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from pathlib import Path
 import tempfile
 import unittest
@@ -7,6 +9,9 @@ from scripts.render_exam_population_chart import (
     ChartDataError,
     find_latest_exam_csv,
     load_chart_rows,
+    main,
+    render_svg,
+    write_chart,
 )
 
 
@@ -153,6 +158,97 @@ class ChartTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ChartDataError, "只有民國 130 年"):
             load_chart_rows(path)
+
+    def test_render_svg_contains_four_series_values_and_accessible_text(self):
+        rows = load_chart_rows(
+            self.write_export("20260730T000000.000000Z")
+        )
+
+        svg = render_svg(rows)
+
+        self.assertIn(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 980"',
+            svg,
+        )
+        self.assertIn(
+            '<title id="chart-title">竹竹苗國三會考應屆人口推估</title>',
+            svg,
+        )
+        self.assertIn('<desc id="chart-desc">', svg)
+        for series in (
+            "hsinchu-county",
+            "hsinchu-city",
+            "miaoli-county",
+            "total",
+        ):
+            self.assertEqual(
+                svg.count(f'data-series="{series}" data-year='),
+                15,
+            )
+            self.assertIn(f'data-series-line="{series}"', svg)
+        self.assertIn(">17,757<", svg)
+        self.assertIn("暫估：各地補 2 月", svg)
+        self.assertIn(
+            'data-year="130" data-provisional="true"',
+            svg,
+        )
+
+    def test_render_svg_labels_axes_and_estimate_limitations(self):
+        rows = load_chart_rows(
+            self.write_export("20260730T000000.000000Z")
+        )
+
+        svg = render_svg(rows)
+
+        self.assertIn("預估人數（人）", svg)
+        self.assertIn("民國會考年度", svg)
+        self.assertIn("非實際畢業或報考人數", svg)
+        self.assertIn("stroke-dasharray", svg)
+        self.assertEqual(svg.count('data-series-line="'), 4)
+
+    def test_write_chart_does_not_leave_output_after_invalid_csv(self):
+        rows = self.rows()
+        rows[0]["新竹縣預估人數"] = "invalid"
+        invalid = self.write_export(
+            "20260730T000000.000000Z",
+            rows=rows,
+        )
+        output = self.root / "chart.svg"
+
+        with self.assertRaises(ChartDataError):
+            write_chart(invalid, output)
+
+        self.assertFalse(output.exists())
+
+    def test_main_writes_explicit_input_and_reports_missing_default(self):
+        source = self.write_export("20260730T000000.000000Z")
+        output = self.root / "chart.svg"
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            success = main(
+                [
+                    "--input",
+                    str(source),
+                    "--output",
+                    str(output),
+                ]
+            )
+            failure = main(
+                [
+                    "--data-root",
+                    str(self.root / "missing"),
+                    "--output",
+                    str(self.root / "not-written.svg"),
+                ]
+            )
+
+        self.assertEqual(success, 0)
+        self.assertTrue(output.exists())
+        self.assertIn(str(output), stdout.getvalue())
+        self.assertEqual(failure, 1)
+        self.assertIn("錯誤：找不到會考人口 CSV", stderr.getvalue())
 
 
 if __name__ == "__main__":
