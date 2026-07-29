@@ -33,7 +33,7 @@
 - Consumes: `Path` to `data/population` or an explicit export CSV
 - Produces: `ChartDataError`, `ChartRow`, `find_latest_exam_csv(data_root: Path) -> Path`, `load_chart_rows(csv_path: Path) -> tuple[ChartRow, ...]`
 
-- [ ] **Step 1: Write failing loader and validation tests**
+- [x] **Step 1: Write failing loader and validation tests**
 
 Create `tests/test_chart.py` with a helper that writes 15 `utf-8-sig` rows for
 years 116–130. Add tests equivalent to:
@@ -67,7 +67,7 @@ Also cover duplicate or non-contiguous years, negative/non-integer population,
 total not equal to the three regions, and year 130 without `暫估` in
 `資料完整性`.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run:
 
@@ -78,7 +78,7 @@ caffeinate -i -m python3 -m unittest tests.test_chart -v
 Expected: import failure because `scripts.render_exam_population_chart` does not
 exist.
 
-- [ ] **Step 3: Implement the data types, latest-file selection, and parser**
+- [x] **Step 3: Implement the data types, latest-file selection, and parser**
 
 In `scripts/render_exam_population_chart.py`, define the exact public boundary:
 
@@ -187,7 +187,7 @@ def load_chart_rows(csv_path: Path) -> tuple[ChartRow, ...]:
 Use explicit field constants and errors that name the file, row, and invalid
 field. Do not silently skip malformed rows.
 
-- [ ] **Step 4: Run focused and existing tests**
+- [x] **Step 4: Run focused and existing tests**
 
 Run:
 
@@ -199,7 +199,7 @@ caffeinate -i -m python3 -W error::ResourceWarning -m unittest discover \
 
 Expected: all loader tests and the existing 52 tests pass.
 
-- [ ] **Step 5: Review, commit, and push Task 1**
+- [x] **Step 5: Review, commit, and push Task 1**
 
 Run:
 
