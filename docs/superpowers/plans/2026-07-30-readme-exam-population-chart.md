@@ -605,7 +605,7 @@ tree is clean.
 - Consumes: the OSI MIT License template and the approved holder name
 - Produces: an OSI-recognizable root license and a README license link
 
-- [ ] **Step 1: Write the failing license test**
+- [x] **Step 1: Write the failing license test**
 
 Create `tests/test_license.py`:
 
@@ -635,7 +635,7 @@ class LicenseTests(unittest.TestCase):
         self.assertIn("[MIT License](LICENSE)", readme)
 ```
 
-- [ ] **Step 2: Run the license tests and verify RED**
+- [x] **Step 2: Run the license tests and verify RED**
 
 Run:
 
@@ -646,7 +646,7 @@ caffeinate -i -m python3 -m unittest tests.test_license -v
 Expected: errors because the root `LICENSE` does not exist and README has no
 license section.
 
-- [ ] **Step 3: Add the canonical license and README declaration**
+- [x] **Step 3: Add the canonical license and README declaration**
 
 Create root `LICENSE` from the OSI MIT template with exactly:
 
@@ -683,7 +683,7 @@ Add this README section:
 官方原始人口資料的權利與來源仍歸各發布機關所有。
 ```
 
-- [ ] **Step 4: Run final automated verification**
+- [x] **Step 4: Run final automated verification**
 
 Run:
 
@@ -701,7 +701,7 @@ Expected: all tests pass, artifact validation prints
 `live artifact validation: PASS`, SVG validation exits zero, and the diff is
 clean.
 
-- [ ] **Step 5: Review, commit, push, and verify GitHub**
+- [x] **Step 5: Review, commit, push, and verify GitHub**
 
 Review the complete diff against the design spec, then run:
 

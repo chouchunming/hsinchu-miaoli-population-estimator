@@ -71,3 +71,8 @@ exit code 1、保留已取得的原始檔與診斷，但不建立新的 exports 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
+
+## 授權
+
+本專案採用 [MIT License](LICENSE)，Copyright (c) 2026 Vincent Chou。
+官方原始人口資料的權利與來源仍歸各發布機關所有。
