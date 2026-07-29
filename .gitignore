@@ -1,4 +1,5 @@
 __pycache__/
 *.py[cod]
 .DS_Store
-/data/population/
+*.sqlite3-wal
+*.sqlite3-shm
