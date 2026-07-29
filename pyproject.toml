@@ -1,0 +1,8 @@
+[project]
+name = "hsinchu-miaoli-population-estimator"
+version = "0.1.0"
+description = "Archive official population data and estimate Hsinchu–Miaoli school-age cohorts."
+requires-python = ">=3.11"
+
+[tool.unittest]
+start-directory = "tests"
