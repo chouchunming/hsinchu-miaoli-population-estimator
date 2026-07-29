@@ -23,6 +23,7 @@ FIELDS = (
     "三區合計",
     "資料完整性",
 )
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class ChartTests(unittest.TestCase):
@@ -249,6 +250,17 @@ class ChartTests(unittest.TestCase):
         self.assertIn(str(output), stdout.getvalue())
         self.assertEqual(failure, 1)
         self.assertIn("錯誤：找不到會考人口 CSV", stderr.getvalue())
+
+    def test_readme_embeds_generated_chart_and_links_source_csv(self):
+        readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn(
+            "![竹竹苗國三會考應屆人口推估]"
+            "(docs/images/exam-population-116-130.svg)",
+            readme,
+        )
+        self.assertIn("exam_population_116_130.csv", readme)
+        self.assertIn("render_exam_population_chart.py", readme)
 
 
 if __name__ == "__main__":

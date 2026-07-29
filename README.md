@@ -10,6 +10,21 @@
 結果不是實際在學或報考人數。戶籍遷入／遷出登記總數包含縣市內跨
 行政區移動，不代表跨縣市移入人口。
 
+## 會考應屆人口推估
+
+![竹竹苗國三會考應屆人口推估](docs/images/exam-population-116-130.svg)
+
+圖中數值是依戶籍單歲人口推估的 cohort 人數，不是實際畢業生或會考
+報考人數。民國 130 年因三地各補足兩個月份，標示為暫估。
+
+資料表：[民國 116–130 年會考人口推估](data/population/exports/20260729T145221.972744Z/exam_population_116_130.csv)
+
+重新產圖：
+
+```bash
+python3 scripts/render_exam_population_chart.py
+```
+
 ## 官方來源
 
 - 新竹縣政府民政處：

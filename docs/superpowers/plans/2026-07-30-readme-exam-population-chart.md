@@ -501,7 +501,7 @@ Expected: the SVG renderer commit is reachable from the remote feature branch.
 - Consumes: `scripts/render_exam_population_chart.py` and the latest committed CSV
 - Produces: the stable README SVG and a documented regeneration command
 
-- [ ] **Step 1: Write the failing README integration test**
+- [x] **Step 1: Write the failing README integration test**
 
 Add:
 
@@ -517,7 +517,7 @@ def test_readme_embeds_generated_chart_and_links_source_csv(self):
     self.assertIn("render_exam_population_chart.py", readme)
 ```
 
-- [ ] **Step 2: Run the README test and verify RED**
+- [x] **Step 2: Run the README test and verify RED**
 
 Run:
 
@@ -529,7 +529,7 @@ caffeinate -i -m python3 -m unittest \
 
 Expected: FAIL because README does not yet embed the SVG.
 
-- [ ] **Step 3: Generate the chart and update README**
+- [x] **Step 3: Generate the chart and update README**
 
 Run:
 
@@ -554,7 +554,7 @@ python3 scripts/render_exam_population_chart.py
 State that year 130 is provisional and that all values are registered-population
 cohort estimates rather than actual graduates or examinees.
 
-- [ ] **Step 4: Run automated and visual verification**
+- [x] **Step 4: Run automated and visual verification**
 
 Run:
 
@@ -576,7 +576,7 @@ overlaps or clips.
 Expected: all automated gates pass, artifact validation prints
 `live artifact validation: PASS`, and visual inspection is legible.
 
-- [ ] **Step 5: Inline review, commit, push, and verify GitHub**
+- [x] **Step 5: Inline review, commit, push, and verify GitHub**
 
 Review the complete diff against the design spec, then run:
 
