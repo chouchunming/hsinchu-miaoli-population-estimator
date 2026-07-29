@@ -65,3 +65,12 @@ SVG：
 設計、實作、測試、SVG 與 README 變更會提交並推送至目前的
 `feature/skip-existing-downloads` 分支。除非另行要求，不合併 `main`
 也不建立 Pull Request。
+
+## 授權
+
+- Repository 根目錄新增 OSI 標準 MIT License 全文，SPDX identifier 為
+  `MIT`。
+- 著作權宣告固定為 `Copyright (c) 2026 Vincent Chou`。
+- README 新增授權段落並連結根目錄的 `LICENSE`。
+- 授權文件涵蓋本專案程式碼及隨 repository 發布的內容；不改寫官方原始
+  資料本身的來源或權利歸屬說明。
