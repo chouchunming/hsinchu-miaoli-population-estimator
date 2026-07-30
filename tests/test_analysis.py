@@ -54,10 +54,11 @@ def current_repo():
 
 
 class ExamAnalysisTests(unittest.TestCase):
-    def test_exam_rows_have_15_years_and_three_region_total(self):
-        rows = exam_population_rows(current_repo(), 116, 130)
-        self.assertEqual(len(rows), 15)
-        self.assertEqual(rows[0]["會考年度"], 116)
+    def test_exam_rows_have_16_years_and_three_region_total(self):
+        rows = exam_population_rows(current_repo(), 115, 130)
+        self.assertEqual(len(rows), 16)
+        self.assertEqual(rows[0]["會考年度"], 115)
+        self.assertEqual(rows[0]["出生區間"], "99-09～100-08")
         self.assertEqual(
             rows[0]["三區合計"],
             sum(

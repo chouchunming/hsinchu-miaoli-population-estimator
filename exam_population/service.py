@@ -125,7 +125,7 @@ def update(
     data_root: Path | str | None = None,
     *,
     sources=None,
-    start_year: int = 116,
+    start_year: int = 115,
     end_year: int = 130,
     backfill_from: tuple[int, int] = (114, 1),
     range_end: tuple[int, int] | None = None,
@@ -299,7 +299,7 @@ def check_gaps(
 def analyze(
     data_root: Path | str | None = None,
     *,
-    start_year: int = 116,
+    start_year: int = 115,
     end_year: int = 130,
     backfill_from: tuple[int, int] = (114, 1),
 ) -> RunResult:

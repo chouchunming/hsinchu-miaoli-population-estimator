@@ -135,6 +135,9 @@ class ServiceTests(unittest.TestCase):
         )
         self.assertEqual(result.status, "success")
         self.assertTrue(result.export_dir.exists())
+        self.assertTrue(
+            (result.export_dir / "exam_population_115_130.csv").exists()
+        )
         self.assertEqual(len(list((self.root / "raw").rglob("*.csv"))), 6)
         with PopulationRepository(self.root / "population.sqlite3") as repo:
             self.assertEqual(repo.count_artifacts(), 6)
@@ -213,6 +216,9 @@ class ServiceTests(unittest.TestCase):
         calls = len(http.calls)
         result = analyze(self.root, backfill_from=(115, 6))
         self.assertTrue(result.export_dir.exists())
+        self.assertTrue(
+            (result.export_dir / "exam_population_115_130.csv").exists()
+        )
         self.assertEqual(len(http.calls), calls)
 
     def test_gaps_include_month_before_earliest_artifact(self):

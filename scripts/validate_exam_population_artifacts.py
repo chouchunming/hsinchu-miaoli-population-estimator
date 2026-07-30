@@ -84,8 +84,8 @@ def validate(data_root: Path | str) -> list[str]:
     else:
         exam_rows = _rows(exam_files[0])
         years = [int(row["會考年度"]) for row in exam_rows]
-        if years != list(range(116, 131)):
-            errors.append(f"會考年度不是 116–130：{years}")
+        if years != list(range(115, 131)):
+            errors.append(f"會考年度不是 115–130：{years}")
         for row in exam_rows:
             regional = sum(
                 int(row[field])

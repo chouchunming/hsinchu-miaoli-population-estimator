@@ -26,7 +26,7 @@ def _parser() -> argparse.ArgumentParser:
     for command in ("update", "analyze"):
         child = subparsers.add_parser(command)
         child.add_argument("--data-root", type=Path, default=default_data_root())
-        child.add_argument("--start-year", type=int, default=116)
+        child.add_argument("--start-year", type=int, default=115)
         child.add_argument("--end-year", type=int, default=130)
         child.add_argument(
             "--backfill-from", type=parse_roc_month, default=(114, 1)
