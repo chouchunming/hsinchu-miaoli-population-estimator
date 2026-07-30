@@ -12,6 +12,10 @@ import tempfile
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+START_YEAR = 115
+END_YEAR = 130
+EXAM_FILENAME = f"exam_population_{START_YEAR}_{END_YEAR}.csv"
+SVG_FILENAME = f"exam-population-{START_YEAR}-{END_YEAR}.svg"
 REQUIRED_FIELDS = (
     "會考年度",
     "新竹縣預估人數",
@@ -45,9 +49,7 @@ class ChartRow:
 
 
 def find_latest_exam_csv(data_root: Path) -> Path:
-    candidates = sorted(
-        Path(data_root).glob("exports/*/exam_population_116_130.csv")
-    )
+    candidates = sorted(Path(data_root).glob(f"exports/*/{EXAM_FILENAME}"))
     if not candidates:
         raise ChartDataError(f"找不到會考人口 CSV：{data_root}")
     return candidates[-1]
@@ -106,8 +108,11 @@ def load_chart_rows(csv_path: Path) -> tuple[ChartRow, ...]:
                 )
             rows.append(row)
 
-    if tuple(row.exam_year for row in rows) != tuple(range(116, 131)):
-        raise ChartDataError("會考年度必須連續且恰為 116–130")
+    expected_years = tuple(range(START_YEAR, END_YEAR + 1))
+    if tuple(row.exam_year for row in rows) != expected_years:
+        raise ChartDataError(
+            f"會考年度必須連續且恰為 {START_YEAR}–{END_YEAR}"
+        )
     if any(row.provisional for row in rows[:-1]) or not rows[-1].provisional:
         raise ChartDataError("只有民國 130 年必須標示為暫估")
     return tuple(rows)
@@ -146,7 +151,7 @@ def render_svg(rows: tuple[ChartRow, ...]) -> str:
         ),
         '<title id="chart-title">竹竹苗國三會考應屆人口推估</title>',
         (
-            '<desc id="chart-desc">民國 116 至 130 年新竹縣、新竹市、'
+            '<desc id="chart-desc">民國 115 至 130 年新竹縣、新竹市、'
             '苗栗縣與三區合計的戶籍人口 cohort 推估；民國 130 年為暫估。'
             "</desc>"
         ),
@@ -294,7 +299,7 @@ def main(argv: list[str] | None = None) -> int:
         default=REPOSITORY_ROOT
         / "docs"
         / "images"
-        / "exam-population-116-130.svg",
+        / SVG_FILENAME,
     )
     arguments = parser.parse_args(argv)
     try:

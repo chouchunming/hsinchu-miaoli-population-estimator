@@ -3,7 +3,7 @@
 這個專案每月從新竹縣、新竹市及苗栗縣官方網站取得單歲戶籍人口與
 戶籍動態資料，保存不可變原始檔及 SQLite 時序資料，並輸出：
 
-- 民國 116–130 年國三會考戶籍人口 cohort 推估。
+- 民國 115–130 年國三會考戶籍人口 cohort 推估。
 - 年度戶籍遷入、遷出登記總數與登記淨變化。
 - 幼幼班至國中二年級，同一出生 cohort 相隔 12 個月的人口變化。
 
@@ -12,12 +12,12 @@
 
 ## 會考應屆人口推估
 
-![竹竹苗國三會考應屆人口推估](docs/images/exam-population-116-130.svg)
+![竹竹苗國三會考應屆人口推估](docs/images/exam-population-115-130.svg)
 
 圖中數值是依戶籍單歲人口推估的 cohort 人數，不是實際畢業生或會考
 報考人數。民國 130 年因三地各補足兩個月份，標示為暫估。
 
-資料表：[民國 116–130 年會考人口推估](data/population/exports/20260729T145221.972744Z/exam_population_116_130.csv)
+資料表：[民國 115–130 年會考人口推估](data/population/exports/20260730T135718.132664Z/exam_population_115_130.csv)
 
 重新產圖：
 
@@ -53,7 +53,7 @@ python3 scripts/estimate_exam_population.py gaps
 python3 scripts/estimate_exam_population.py update \
   --data-root /absolute/path/to/population-data \
   --backfill-from 114-01 \
-  --start-year 116 \
+  --start-year 115 \
   --end-year 130
 ```
 

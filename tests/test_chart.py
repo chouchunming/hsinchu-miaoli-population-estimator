@@ -37,10 +37,14 @@ class ChartTests(unittest.TestCase):
 
     def rows(self):
         result = []
-        for index, year in enumerate(range(116, 131)):
-            county = 7024 - index * 100
-            city = 5681 - index * 90
-            miaoli = 5052 - index * 80
+        for year in range(115, 131):
+            if year == 115:
+                county, city, miaoli = 5951, 4666, 4287
+            else:
+                index = year - 116
+                county = 7024 - index * 100
+                city = 5681 - index * 90
+                miaoli = 5052 - index * 80
             result.append(
                 {
                     "會考年度": year,
@@ -66,7 +70,7 @@ class ChartTests(unittest.TestCase):
     ):
         destination = self.data_root / "exports" / name
         destination.mkdir(parents=True)
-        path = destination / "exam_population_116_130.csv"
+        path = destination / "exam_population_115_130.csv"
         fields = tuple(field for field in FIELDS if field != omit_field)
         with path.open("w", encoding="utf-8-sig", newline="") as stream:
             writer = csv.DictWriter(
@@ -94,9 +98,9 @@ class ChartTests(unittest.TestCase):
 
         rows = load_chart_rows(path)
 
-        self.assertEqual([row.exam_year for row in rows], list(range(116, 131)))
-        self.assertEqual(rows[0].regional_values, (7024, 5681, 5052))
-        self.assertEqual(rows[0].total, 17757)
+        self.assertEqual([row.exam_year for row in rows], list(range(115, 131)))
+        self.assertEqual(rows[0].regional_values, (5951, 4666, 4287))
+        self.assertEqual(rows[0].total, 14904)
         self.assertFalse(rows[0].provisional)
         self.assertTrue(rows[-1].provisional)
 
@@ -111,10 +115,10 @@ class ChartTests(unittest.TestCase):
 
     def test_duplicate_or_non_contiguous_years_are_rejected(self):
         rows = self.rows()
-        rows[1]["會考年度"] = 116
+        rows[1]["會考年度"] = 115
         path = self.write_export("20260730T000000.000000Z", rows=rows)
 
-        with self.assertRaisesRegex(ChartDataError, "必須連續且恰為 116–130"):
+        with self.assertRaisesRegex(ChartDataError, "必須連續且恰為 115–130"):
             load_chart_rows(path)
 
     def test_negative_and_non_integer_population_are_rejected(self):
@@ -184,9 +188,10 @@ class ChartTests(unittest.TestCase):
         ):
             self.assertEqual(
                 svg.count(f'data-series="{series}" data-year='),
-                15,
+                16,
             )
             self.assertIn(f'data-series-line="{series}"', svg)
+        self.assertIn(">14,904<", svg)
         self.assertIn(">17,757<", svg)
         self.assertIn("暫估：各地補 2 月", svg)
         self.assertIn(
@@ -256,10 +261,10 @@ class ChartTests(unittest.TestCase):
 
         self.assertIn(
             "![竹竹苗國三會考應屆人口推估]"
-            "(docs/images/exam-population-116-130.svg)",
+            "(docs/images/exam-population-115-130.svg)",
             readme,
         )
-        self.assertIn("exam_population_116_130.csv", readme)
+        self.assertIn("exam_population_115_130.csv", readme)
         self.assertIn("render_exam_population_chart.py", readme)
 
 
